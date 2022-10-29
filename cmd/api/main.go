@@ -14,7 +14,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const VERSION = "1.0.0"
+const version = "1.0.0"
 
 type config struct {
 	port int
@@ -32,56 +32,54 @@ type AppStatus struct {
 	Environment string `json:"environment"`
 	Version     string `json:"version"`
 }
-type Application struct {
+
+type application struct {
 	config config
 	logger *log.Logger
 	models models.Models
 }
 
 func main() {
-	var cnfg config
+	var cfg config
 
-	//will be reading things like port and environment from cmd line
-	//as a flag part of the application
-
-	flag.IntVar(&cnfg.port, "port", 4000, "Server port to listen on")
-	flag.StringVar(&cnfg.env, "env", "development", "Application environment(development -production)")
-	flag.StringVar(&cnfg.db.dsn, "dsn", "postgres://postgres:2061040215@localhost/go_movie?sslmode=disable", "Postgres connection String")
-	flag.StringVar(&cnfg.jwt.secret, "jwt-secret", "2dce505d96a53c5768052ee90f3df2055657518dad489160df9913f66042e160", "secret")
+	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
+	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
+	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://postgres:2061040215@localhost/go_movie?sslmode=disable", "Postgres connection String")
+	flag.StringVar(&cfg.jwt.secret, "jwt-secret", "2dce505d96a53c5768052ee90f3df2055657518dad489160df9913f66042e160", "secret")
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-	db, err := OpenDB(cnfg)
+
+	db, err := openDB(cfg)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	defer db.Close()
-	logger.Println("Database Connection established!!")
 
-	app := &Application{
-		config: cnfg,
+	app := &application{
+		config: cfg,
 		logger: logger,
 		models: models.NewModels(db),
 	}
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cnfg.port),
+		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Millisecond,
-		WriteTimeout: 30 * time.Millisecond,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
 	}
-	logger.Println("Starting server on port", cnfg.port)
+
+	logger.Println("Starting server on port", cfg.port)
+
 	err = srv.ListenAndServe()
 	if err != nil {
-		logger.Println(err)
+		log.Println(err)
 	}
-
 }
 
-func OpenDB(cfg config) (*sql.DB, error) {
+func openDB(cfg config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.db.dsn)
-
 	if err != nil {
 		return nil, err
 	}
@@ -95,5 +93,4 @@ func OpenDB(cfg config) (*sql.DB, error) {
 	}
 
 	return db, nil
-
 }
