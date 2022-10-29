@@ -14,8 +14,8 @@ import (
 
 var validUser = models.User{
 	ID:       10,
-	Email:    "ahmetogus123@gmail.com",
-	Password: "$2a$12$zCJN9bDE0Pog17vErHrFQeZjKXZtog6P/dZPs.GQekZHvO5WMl4Qq",
+	Email:    "me@here.com",
+	Password: "$2a$12$YZmO3zxVXaKGXORRDxMleOD8COPtz85eSfuxB3ulSwfZmQ6uNzmE2",
 }
 
 type Credentials struct {
@@ -23,27 +23,24 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-func (app *Application) signin(w http.ResponseWriter, r *http.Request) {
+func (app *application) Signin(w http.ResponseWriter, r *http.Request) {
+	var creds Credentials
 
-	var cred Credentials
-	cred.Password = "$2a$12$zCJN9bDE0Pog17vErHrFQeZjKXZtog6P/dZPs.GQekZHvO5WMl4Qq"
-
-	err := json.NewDecoder(r.Body).Decode(&cred)
+	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
-		app.errorJson(w, errors.New("unauthorized!!!"))
+		app.errorJson(w, errors.New("unauthorized"))
 		return
 	}
 
 	hashedPassword := validUser.Password
 
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(cred.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(creds.Password))
 	if err != nil {
-		fmt.Println(cred.Username, cred.Password)
-		app.errorJson(w, errors.New("unauthorized!!!"))
+		app.errorJson(w, errors.New("unauthorized"))
 		return
 	}
-	var claims jwt.Claims
 
+	var claims jwt.Claims
 	claims.Subject = fmt.Sprint(validUser.ID)
 	claims.Issued = jwt.NewNumericTime(time.Now())
 	claims.NotBefore = jwt.NewNumericTime(time.Now())
@@ -53,10 +50,10 @@ func (app *Application) signin(w http.ResponseWriter, r *http.Request) {
 
 	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(app.config.jwt.secret))
 	if err != nil {
-
-		app.errorJson(w, errors.New("error signing in!!!"))
+		app.errorJson(w, errors.New("error signing"))
 		return
 	}
-	app.WriteJSON(w, http.StatusOK, jwtBytes, "response")
-	fmt.Println(jwtBytes)
+
+	app.WriteJSON(w, http.StatusOK, string(jwtBytes), "reponse")
+
 }
