@@ -5,11 +5,11 @@ import (
 	"net/http"
 )
 
-func (app *Application) statusHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) statusHandler(w http.ResponseWriter, r *http.Request) {
 	currentStatus := AppStatus{
 		Status:      "Available",
 		Environment: app.config.env,
-		Version:     VERSION,
+		Version:     version,
 	}
 
 	js, err := json.MarshalIndent(currentStatus, "", "\t")
