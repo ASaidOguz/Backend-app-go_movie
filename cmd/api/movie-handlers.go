@@ -17,7 +17,7 @@ type jsonResponse struct {
 	Message string `json:"message"`
 }
 
-func (app *Application) getOnemovie(w http.ResponseWriter, r *http.Request) {
+func (app *application) getOnemovie(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 
 	id, err := strconv.Atoi(params.ByName("id"))
@@ -38,7 +38,7 @@ func (app *Application) getOnemovie(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *Application) getAllmovies(w http.ResponseWriter, r *http.Request) {
+func (app *application) getAllmovies(w http.ResponseWriter, r *http.Request) {
 	movies, err := app.models.DB.GetAll()
 	if err != nil {
 		app.logger.Print(errors.New("Invalid parameter"))
@@ -52,7 +52,7 @@ func (app *Application) getAllmovies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-func (app *Application) GetAllgenres(w http.ResponseWriter, r *http.Request) {
+func (app *application) GetAllgenres(w http.ResponseWriter, r *http.Request) {
 	genres, err := app.models.DB.GenresAll()
 	if err != nil {
 		app.logger.Print(errors.New("Invalid parameter"))
@@ -66,7 +66,7 @@ func (app *Application) GetAllgenres(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-func (app *Application) GetAllmoviesByGenres(w http.ResponseWriter, r *http.Request) {
+func (app *application) GetAllmoviesByGenres(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 
 	genreID, err := strconv.Atoi(params.ByName("genre_id"))
@@ -90,7 +90,7 @@ func (app *Application) GetAllmoviesByGenres(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-//Stub functions thath we will remember when we return!!!
+//Stub functions that we will remember when we return!!!
 
 type MoviePayload struct {
 	ID          string `json:"id"`
@@ -103,7 +103,7 @@ type MoviePayload struct {
 	MPAARating  string `json:"mpaa_rating"`
 }
 
-func (app *Application) editmovie(w http.ResponseWriter, r *http.Request) {
+func (app *application) editmovie(w http.ResponseWriter, r *http.Request) {
 	var payload MoviePayload
 
 	err := json.NewDecoder(r.Body).Decode(&payload)
@@ -164,7 +164,7 @@ func (app *Application) editmovie(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *Application) DeleteMovie(w http.ResponseWriter, r *http.Request) {
+func (app *application) DeleteMovie(w http.ResponseWriter, r *http.Request) {
 
 	params := httprouter.ParamsFromContext(r.Context())
 	id, err := strconv.Atoi(params.ByName("id"))
@@ -188,6 +188,6 @@ func (app *Application) DeleteMovie(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *Application) SearchMovies(w http.ResponseWriter, r *http.Request) {
+func (app *application) SearchMovies(w http.ResponseWriter, r *http.Request) {
 
 }
